@@ -1,94 +1,106 @@
-var library = {
-  tracks: { t01: { id: "t01",
-                   name: "Code Monkey",
-                   artist: "Jonathan Coulton",
-                   album: "Thing a Week Three" },
-            t02: { id: "t02",
-                   name: "Model View Controller",
-                   artist: "James Dempsey",
-                   album: "WWDC 2003"},
-            t03: { id: "t03",
-                   name: "Four Thirty-Three",
-                   artist: "John Cage",
-                   album: "Woodstock 1952"}
-          },
-  playlists: { p01: { id: "p01",
-                      name: "Coding Music",
-                      tracks: ["t01", "t02"]
-                    },
-               p02: { id: "p02",
-                      name: "Other Playlist",
-                      tracks: ["t03"]
-                    }
-             },
-  printPlaylists: function () 
-                  {
-                  finalOutput = "";
-                  for(var playlist in this["playlists"])
-                  {
-                    console.log(this.playlists[playlist].id + ": " + this.playlists[playlist].name + " - "+ this.playlists[playlist].tracks.length );
-                  }
-                  }, 
-  printTracks:  function () 
-                {
-                  for(track in this.tracks)
-                  {
-                    console.log(this.tracks[track].id + ": "+ this.tracks[track].name + " by "+ this.tracks[track].artist + "("+this.tracks[track].album +")");
-                  }
-                },
-  printPlaylist:  function (playlistId) 
-                  {
-                    console.log(this.playlists[playlistId].id +": " + this.playlists[playlistId].name +" - "+ this.playlists[playlistId].tracks.length);
-                    for(var track in this["tracks"])
-                    {
-                      if(this.playlists[playlistId].tracks.indexOf(this.tracks[track].id) > -1 )
-                      {
-                        console.log(this.tracks[track].id + ": "+ this.tracks[track].name + " by "+ this.tracks[track].artist + "("+this.tracks[track].album +")");
-                      }
-                    }
-                  },
-  addTrackToPlaylist: function (trackId, playlistId) 
-                      {   
-                        keyArray = [];
-                        keyArray = Object.keys(this["tracks"]);
-                        if(keyArray.indexOf(trackId) > -1)
-                        {
-                          this["playlists"][playlistId]["tracks"].push(trackId);
-                          console.log(this["playlists"]);
-                        }
-                        else
-                        {
-                          console.log("Error: Track not found in library")
-                        }
-                      },
+//Defining classes
 
-  uid:  function() 
-        {
-          return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-        },
-  addtrack: function (name, artist, album) 
-            {
-              var id = uid();
-              String(id);
-              this["tracks"][id] = 
-              {    
-                id : id,
-                name: name,
-                artist: artist,
-                album : album
-              }
-              console.log(this["tracks"]);
-            },
-  addPlaylist:  function ( name,track) 
-                {
-                  var id = uid();
-                  String(id);
-                  this["playlists"][id] = 
-                  {    
-                    id : id,
-                    name: name,
-                    track: track,
-                  }
-                  console.log(this["playlists"]);
-                },
+//Library class constructor func
+function Library(name,creator){
+  this.name = name;
+  this.creator = creator;
+  this.playlists = [];
 }
+
+//Playlsist class func
+function Playlist(name){
+  this.name = name;
+  this.tracks = [];
+}
+
+//Track class func
+function Track(title,artist,album,rating,length){
+  this.title = title;
+  this.artist = artist;
+  this.album = album;
+  this.length = length;
+
+  if(rating >=1 || rating <=5){
+    this.rating = rating;
+  }else {
+    console.log("Invalid argument: Rating must be an intetger between 1-5")
+  }
+}
+
+//Methods acting on Library, added to its prototype
+
+Library.prototype.addPlaylist = function(playlistObject){
+  this.playlists.push(playlistObject);
+}
+
+Library.prototype.printTracks = function(){
+  this.playlists.forEach(function(playlist){
+    playlist.tracks.forEach(function(track){
+      console.log(track.title);
+    })
+  })
+}
+
+Library.prototype.printPlaylists = function(){
+  this.playlists.forEach(function(playlist){
+    console.log(playlist.name);
+  })
+}
+
+//Methods acting on Playlist, added to its prototype
+
+Playlist.prototype.addTrack = function(trackObject){
+  this.tracks.push(trackObject);
+}
+
+Playlist.prototype.getOverallRating = function(){
+  let rating = 0;
+  let totalRatings = 0;
+
+  this.tracks.forEach(function(track){
+    totalRatings+=track.rating;
+  });
+
+  rating = totalRatings / this.tracks.length;
+  return rating;
+}
+
+Playlist.prototype.getTotalDuration = function(){
+  let totalDuration = 0;
+
+  this.tracks.forEach(function(track){
+    totalDuration+=track.length;
+  });
+  return totalDuration + " Seconds";
+}
+
+//Creating new track objects
+
+let trackCodeMonkey = new Track("Code Monkey","Jonathan Coulton","Thing a Week Three",3,100);
+let trackModelViewController = new Track("Model View Controller","James Dempsey","WWDC 2003",5,120);
+let trackFourThirtyThree = new Track("Four Thirty-Three","John Cage","Woodstock 1952",4,90);
+
+//Creating new playlist objects
+let playlistCodingMusic = new Playlist("codingMusic");
+let playlistOther = new Playlist("Other Playlist");
+
+//Assigning tracks object to playlist
+playlistCodingMusic.addTrack(trackCodeMonkey);
+playlistCodingMusic.addTrack(trackModelViewController);
+
+playlistOther.addTrack(trackFourThirtyThree);
+
+//Creating a new library object
+let library = new Library("library","Bob"); 
+
+//Assigning playlist objects to library
+library.addPlaylist(playlistCodingMusic);
+library.addPlaylist(playlistOther);
+
+
+//Test driver
+console.log("The tracks in the library: ");
+library.printTracks();
+console.log("The playlists in the library: ");
+library.printPlaylists();
+console.log("Total duration of playlistCodingMusic: " , playlistCodingMusic.getTotalDuration());
